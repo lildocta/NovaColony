@@ -1,1 +1,49 @@
 @import "tailwindcss";
+
+@theme {
+    --color-theme-primary: var(--theme-primary);
+    --color-theme-accent: var(--theme-accent);
+    --color-theme-bg: var(--theme-bg);
+    --color-theme-surface: var(--theme-surface);
+}
+
+:root {
+    --theme-primary: #06b6d4;
+    --theme-accent: #f59e0b;
+    --theme-bg: #030712;
+    --theme-surface: #111827;
+}
+
+/* Toastify Custom Overrides */
+.Toastify__progress-bar {
+    background: var(--theme-primary) !important;
+    height: 2px !important;
+}
+
+.Toastify__progress-bar--error {
+    background: #ef4444 !important;
+    /* red-500 */
+}
+
+.Toastify__toast--error {
+    border-color: #ef4444 !important;
+    /* red-500 */
+}
+
+.Toastify__toast--error .Toastify__toast-body {
+    color: #fca5a5 !important;
+    /* red-300 */
+}
+
+/* Ensure text is centered and wrapped */
+.Toastify__toast-body {
+    text-align: center;
+    white-space: normal;
+    /* Allow wrapping */
+    word-break: break-word;
+    /* Prevent overflow */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
