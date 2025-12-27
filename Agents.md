@@ -6,3 +6,5 @@ All agents working on this project should refer to `Architecture.md` for:
 - Design System guidelines (Spaceship Control Interface)
 - Component standards (ProgramContainer)
 - Technical patterns
+
+Upon completion of a task, agents should update the `Architecture.md` file to reflect any new architecture decisions made.
