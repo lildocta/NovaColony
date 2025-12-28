@@ -31,3 +31,7 @@ interface ProgramProps {
   // potentially other OS-injected props like windowState, fileSystem, etc.
 }
 ```
+
+#### Toast Notifications
+When a program needs to notify the user of an event, it should use the `notify` function from the `utils/notifications` module.
+import { notify } from './utils/notifications';

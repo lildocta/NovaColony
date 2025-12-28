@@ -58,7 +58,7 @@ const Login: React.FC<Props> = ({ onExit }) => {
                     <div className="space-y-2">
                         <label className="text-xs uppercase tracking-widest text-theme-primary/70">Passcode</label>
                         <input
-                            type="password"
+                            type="text"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full bg-black/40 border border-theme-primary/30 rounded py-3 px-4 text-theme-primary font-mono focus:border-theme-primary focus:outline-none focus:ring-1 focus:ring-theme-primary transition-all placeholder-theme-primary/20"

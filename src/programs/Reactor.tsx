@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { ArrowLeftIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { useGame } from '../context/GameContext';
 import { notify } from '../utils/notifications';
+import Battery from '../components/Battery';
 
 interface ReactorProps {
     onExit: () => void;
@@ -81,14 +82,31 @@ const Reactor: React.FC<ReactorProps> = ({ onExit }) => {
                         Current Output: {state.power} / {state.maxPower} MW
                     </p>
 
-                    <div className="w-full bg-gray-900 h-4 rounded-full overflow-hidden border border-gray-700 mb-6 relative">
-                        {isGenerating && (
-                            <div className="absolute inset-0 bg-theme-primary/30 animate-pulse"></div>
-                        )}
-                        <div
-                            className="h-full bg-theme-primary transition-all duration-300"
-                            style={{ width: `${(state.power / state.maxPower) * 100}%` }}
-                        ></div>
+                    {/* Main Battery Display */}
+                    <div className="mb-8">
+                        <Battery
+                            current={state.power}
+                            max={state.maxPower}
+                            segments={10}
+                            label="Main Power Banks"
+                            charging={isGenerating}
+                            className="bg-gray-900/80 border-theme-primary/20"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-6 text-xs text-left">
+                        <div className="bg-black/40 p-3 rounded border border-theme-primary/10">
+                            <div className="text-gray-500 mb-1">SHIELDS</div>
+                            <div className={state.shields.active ? "text-amber-500" : "text-gray-700"}>
+                                {state.shields.active ? '-15 MW' : 'IDLE'}
+                            </div>
+                        </div>
+                        <div className="bg-black/40 p-3 rounded border border-theme-primary/10">
+                            <div className="text-gray-500 mb-1">THRUSTERS</div>
+                            <div className={state.thrusters.active ? "text-amber-500" : "text-gray-700"}>
+                                {state.thrusters.active ? `-${(state.thrusters.velocity * 0.5).toFixed(1)} MW` : 'IDLE'}
+                            </div>
+                        </div>
                     </div>
 
                     <button

@@ -1,38 +1,23 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
-import { notify } from '../utils/notifications';
+import Battery from './Battery';
 
 const HUD: React.FC = () => {
-    const { state, modifyPower } = useGame();
+    const { state } = useGame();
     const { selection, power, maxPower } = state;
-
-    const handleAction = (cost: number, actionName: string) => {
-        if (modifyPower(-cost)) {
-            notify.success('ACTION INITIATED', `${actionName} active`);
-        } else {
-            notify.error('INSUFFICIENT POWER', `Required: ${cost} MW`);
-        }
-    };
-
-    // Power Bar Calculation
-    const powerPercent = (power / maxPower) * 100;
-    const powerColor = powerPercent > 20 ? 'bg-theme-primary' : 'bg-red-500';
 
     return (
         <>
             {/* Power Monitor (Top Left) */}
             <div className="fixed top-4 left-4 z-[100] w-64 pointer-events-none fade-in slide-in-from-left-4 animate-in duration-500">
                 <div className="bg-theme-surface/90 border border-theme-primary/30 p-3 rounded backdrop-blur-md shadow-[0_0_20px_rgba(var(--theme-primary),0.2)]">
-                    <div className="flex justify-between items-center mb-1">
-                        <span className="text-theme-primary font-bold text-xs uppercase tracking-widest">Reactor Core</span>
-                        <span className="text-white font-mono text-xs">{power}/{maxPower} MW</span>
-                    </div>
-                    <div className="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-700">
-                        <div
-                            className={`h-full ${powerColor} transition-all duration-500 ease-out`}
-                            style={{ width: `${powerPercent}%` }}
-                        ></div>
-                    </div>
+                    <Battery
+                        current={power}
+                        max={maxPower}
+                        segments={10}
+                        label="Reactor Core"
+                        className="bg-transparent border-0 p-0"
+                    />
                 </div>
             </div>
 
@@ -72,14 +57,6 @@ const HUD: React.FC = () => {
                                         </span>
                                     </div>
 
-                                    <div className="mt-4 pt-2 border-t border-theme-primary/10">
-                                        <button
-                                            onClick={() => handleAction(20, "Course Plotting")}
-                                            className="w-full py-2 bg-theme-primary/20 hover:bg-theme-primary/40 text-theme-primary border border-theme-primary/50 rounded uppercase text-xs font-bold tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            Plot Course (20 MW)
-                                        </button>
-                                    </div>
                                 </>
                             ) : (
                                 <>
@@ -98,21 +75,6 @@ const HUD: React.FC = () => {
                                     <div className="flex justify-between items-baseline">
                                         <span className="text-gray-400 text-xs uppercase tracking-wider">Distance</span>
                                         <span className="text-gray-500 font-mono text-xs">{selection.data.distance.toFixed(2)} AU</span>
-                                    </div>
-
-                                    <div className="mt-4 grid grid-cols-2 gap-2">
-                                        <button
-                                            onClick={() => handleAction(10, "Orbital Scan")}
-                                            className="py-2 bg-theme-primary/10 hover:bg-theme-primary/20 text-theme-primary border border-theme-primary/30 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
-                                        >
-                                            Scan (10 MW)
-                                        </button>
-                                        <button
-                                            onClick={() => handleAction(50, "Probe Launch")}
-                                            className="py-2 bg-theme-primary/10 hover:bg-theme-primary/20 text-theme-primary border border-theme-primary/30 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
-                                        >
-                                            Probe (50 MW)
-                                        </button>
                                     </div>
                                 </>
                             )}

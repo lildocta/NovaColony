@@ -4,17 +4,19 @@ import 'react-toastify/dist/ReactToastify.css';
 import Launcher from './Launcher';
 import type { Program } from './types/Program';
 import { PermissionLevel } from './types/User';
-import HelloWorld from './programs/HelloWorld';
-import Counter from './programs/Counter';
 import ThemeProgram from './programs/Theme';
 import LoginProgram from './programs/Login';
 import StarMap from './programs/StarMap';
 import Reactor from './programs/Reactor';
+import Shields from './programs/Shields';
+import Thrusters from './programs/Thrusters';
+import Docking from './programs/Docking';
+import ShipStatus from './programs/ShipStatus';
 import ProgramContainer from './components/ProgramContainer';
 import { GameProvider } from './context/GameContext';
 import { AuthProvider } from './context/AuthContext';
 import { useTheme } from './hooks/useTheme';
-import { GlobeAltIcon, CalculatorIcon, PaintBrushIcon, KeyIcon, MapIcon, BoltIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, PaintBrushIcon, KeyIcon, MapIcon, BoltIcon, ShieldCheckIcon, RocketLaunchIcon, ArrowDownOnSquareIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import HUD from './components/HUD';
 
 // Registry of available programs
@@ -36,6 +38,34 @@ const AVAILABLE_PROGRAMS: Program[] = [
     minPermissionLevel: PermissionLevel.CREW,
   },
   {
+    id: 'shields',
+    name: 'Shields',
+    icon: ShieldCheckIcon,
+    component: Shields,
+    minPermissionLevel: PermissionLevel.OFFICER,
+  },
+  {
+    id: 'thrusters',
+    name: 'Thrusters',
+    icon: RocketLaunchIcon,
+    component: Thrusters,
+    minPermissionLevel: PermissionLevel.CREW,
+  },
+  {
+    id: 'docking',
+    name: 'Docking',
+    icon: ArrowDownOnSquareIcon,
+    component: Docking,
+    minPermissionLevel: PermissionLevel.CREW,
+  },
+  {
+    id: 'status',
+    name: 'Ship Status',
+    icon: ChartBarIcon,
+    component: ShipStatus,
+    minPermissionLevel: PermissionLevel.CREW,
+  },
+  {
     id: 'comms',
     name: 'Comms',
     icon: GlobeAltIcon,
@@ -43,24 +73,10 @@ const AVAILABLE_PROGRAMS: Program[] = [
     minPermissionLevel: PermissionLevel.OFFICER,
   },
   {
-    id: 'counter',
-    name: 'Counter',
-    icon: CalculatorIcon,
-    component: Counter,
-    minPermissionLevel: PermissionLevel.CREW,
-  },
-  {
     id: 'login',
-    name: 'Login / Identity',
+    name: 'Login',
     icon: KeyIcon,
     component: LoginProgram,
-    minPermissionLevel: PermissionLevel.GUEST,
-  },
-  {
-    id: 'hello-world',
-    name: 'Hello World',
-    icon: GlobeAltIcon,
-    component: HelloWorld,
     minPermissionLevel: PermissionLevel.GUEST,
   },
   {
