@@ -8,3 +8,5 @@ All agents working on this project should refer to `Architecture.md` for:
 - Technical patterns
 
 Upon completion of a task, agents should update the `Architecture.md` file to reflect any new architecture decisions made.
+
+Before ending a task run `npm run build` to ensure the project compiles successfully and fix any errors that occur.

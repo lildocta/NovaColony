@@ -16,6 +16,27 @@ export interface GameState {
     selection: Selection | null;
     power: number;
     maxPower: number;
+    shields: {
+        active: boolean;
+        integrity: number;
+        maxIntegrity: number;
+    };
+    thrusters: {
+        active: boolean;
+        velocity: number;
+        acceleration: number;
+        integrity: number;
+        engines: {
+            [key: string]: {
+                integrity: number;     // 0-100% health
+                currentOutput: number; // 0-100% usage
+            };
+        };
+    };
+    // Navigation
+    currentLocation: [number, number, number];
+    currentSystemId: number | null; // ID of the star we are at (if any)
+    isSystemScanned: boolean;
 }
 
 interface GameContextType {
@@ -23,6 +44,11 @@ interface GameContextType {
     updateTheme: (settings: Partial<ThemeSettings>) => void;
     setSelection: (selection: Selection | null) => void;
     modifyPower: (amount: number) => boolean;
+    toggleShields: () => void;
+    setThrusterVelocity: (velocity: number) => void;
+    damageSystem: (system: 'shields' | 'thrusters' | 'reactor', amount: number) => void;
+    travelToStar: (starId: number) => void;
+    scanSystem: () => void;
     saveGame: (slotId: string) => void;
     loadGame: (slotId: string) => void;
     savedSlots: string[];
@@ -43,6 +69,27 @@ const DEFAULT_STATE: GameState = {
     selection: null,
     power: 50,
     maxPower: 100,
+    shields: {
+        active: false,
+        integrity: 100,
+        maxIntegrity: 100,
+    },
+    thrusters: {
+        active: false,
+        velocity: 0,
+        acceleration: 0,
+        integrity: 100,
+        engines: {
+            main: { integrity: 100, currentOutput: 0 },
+            port: { integrity: 100, currentOutput: 0 },
+            starboard: { integrity: 100, currentOutput: 0 },
+            ventral: { integrity: 100, currentOutput: 0 },
+            dorsal: { integrity: 100, currentOutput: 0 },
+        },
+    },
+    currentLocation: [0, 0, 0], // Start at origin (System 0)
+    currentSystemId: 0,         // Start at System 0
+    isSystemScanned: false,
 };
 
 // --- Generation Logic (Moved from StarMap) ---
@@ -153,6 +200,82 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return success;
     }, []);
 
+    const toggleShields = useCallback(() => {
+        setState(prev => {
+            const newState = { ...prev };
+            newState.shields.active = !prev.shields.active;
+
+            // Initial power cost/refund logic could go here, 
+            // but for now we just toggle state. 
+            // The simulation/tick loop would handle continuous drain.
+
+            return newState;
+        });
+    }, []);
+
+    const setThrusterVelocity = useCallback((velocity: number) => {
+        setState(prev => {
+            const targetVelocity = Math.max(0, Math.min(100, velocity));
+            const active = targetVelocity > 0;
+            const outputLevel = active ? Math.min(100, targetVelocity + 10) : 0; // Simple simulation of output needed
+
+            return {
+                ...prev,
+                thrusters: {
+                    ...prev.thrusters,
+                    active,
+                    velocity: targetVelocity,
+                    acceleration: active ? (targetVelocity > prev.thrusters.velocity ? 5 : -2) : 0, // Mock acceleration
+                    engines: {
+                        main: { ...prev.thrusters.engines.main, currentOutput: outputLevel },
+                        port: { ...prev.thrusters.engines.port, currentOutput: outputLevel * 0.1 }, // Stabilizers
+                        starboard: { ...prev.thrusters.engines.starboard, currentOutput: outputLevel * 0.1 },
+                        ventral: { ...prev.thrusters.engines.ventral, currentOutput: outputLevel * 0.05 },
+                        dorsal: { ...prev.thrusters.engines.dorsal, currentOutput: outputLevel * 0.05 },
+                    }
+                }
+            };
+        });
+    }, []);
+
+    const damageSystem = useCallback((system: 'shields' | 'thrusters' | 'reactor', amount: number) => {
+        setState(prev => {
+            const newState = { ...prev };
+            // Simple integrity reduction logic
+            if (system === 'shields') {
+                newState.shields.integrity = Math.max(0, prev.shields.integrity - amount);
+            } else if (system === 'thrusters') {
+                newState.thrusters.integrity = Math.max(0, prev.thrusters.integrity - amount);
+            }
+            // Add reactor damage logic if needed
+            return newState;
+        });
+    }, []);
+
+    const travelToStar = useCallback((starId: number) => {
+        setState(prev => {
+            const targetStar = prev.galaxy.find(s => s.id === starId);
+            if (!targetStar) return prev; // Should not happen
+
+            return {
+                ...prev,
+                currentLocation: targetStar.position,
+                currentSystemId: targetStar.id,
+                isSystemScanned: false, // Reset scan on new arrival
+                selection: null, // Deselect to avoid confusion
+            };
+        });
+        console.log(`[GameContext] Traveled to Star ID: ${starId}`);
+    }, []);
+
+    const scanSystem = useCallback(() => {
+        setState(prev => ({
+            ...prev,
+            isSystemScanned: true,
+        }));
+        console.log(`[GameContext] System Scanned`);
+    }, []);
+
     // Save Game
     const saveGame = (slotId: string) => {
         const key = `novacolony_save_${slotId}`;
@@ -185,7 +308,20 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <GameContext.Provider value={{ state, updateTheme, setSelection, modifyPower, saveGame, loadGame, savedSlots }}>
+        <GameContext.Provider value={{
+            state,
+            updateTheme,
+            setSelection,
+            modifyPower,
+            toggleShields,
+            setThrusterVelocity,
+            damageSystem,
+            travelToStar,
+            scanSystem,
+            saveGame,
+            loadGame,
+            savedSlots
+        }}>
             {children}
         </GameContext.Provider>
     );
